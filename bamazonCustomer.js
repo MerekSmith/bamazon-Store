@@ -1,0 +1,1 @@
+// TODO: display all items available for sale. Include ids, names, and prices.
