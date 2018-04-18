@@ -71,9 +71,6 @@ function purchasePrompt(results) {
 			name: "quantity"
 		}
 	]).then(function (order) {
-		// TODO: Take the order answers and check against the available quantity from the results passed in to this function. If good, update SQL database and give their total cost. If not enough, state insufficient quantity.
-		console.log(order);
-		console.log(order.quantity);
 		// Loop through original query results to match the product name then pull price and available quantity.
 		for (let i = 0; i < results.length; i++) {
 			if (results[i].product_name === order.options) {
@@ -87,10 +84,17 @@ function purchasePrompt(results) {
 			console.log('Insufficient Quantity!');
 			console.log('We have ' + availableQuantity + ' of this item in stock.');
 		} else {
+			// store variables to be used in update query below.
+			var orderQuantity = {
+				stock_quantity: availableQuantity - order.quantity
+			},
+				prodID = {
+					id: productID
+				}
+
 			// Update server with new available quantity.
-			connection.query('UPDATE products SET stock_quantity=? WHERE ID=?',
-			[availableQuantity - order.quantity],
-			[productID],
+			connection.query('UPDATE products SET ? WHERE ?',
+				[orderQuantity, prodID],
 				function (error, results, fields) {
 					if (error) {
 						return console.log(error);
@@ -98,8 +102,8 @@ function purchasePrompt(results) {
 					console.log('Thank you for your purchase of ' + order.quantity + ' of ' + order.options + '!');
 					console.log('Your total is $' + order.quantity * price);
 				});
-			};
-			connection.end();
+		};
+		connection.end();
 	});
 };
 
