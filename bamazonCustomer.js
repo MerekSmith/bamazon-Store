@@ -10,7 +10,12 @@ var optionsArray = [];
 var productID = 0;
 var price = 0;
 var availableQuantity = 0;
-
+var pricesArray = [];
+var purchase = false;
+var cartTable = new Table({
+	head: ['Product Name', 'Quantity', 'Total Price']
+	, colWidths: [30, 10, 20]
+});
 
 var connection = mysql.createConnection({
 	host: "localhost",
@@ -38,18 +43,19 @@ function displayAvailableItems() {
 		}
 		console.log('Items available for sale:\n');
 		// This is making a new table for the displayed items.
-		var AvailableTable = new Table({
+		var availableTable = new Table({
 			head: ['ID', 'Product Name', 'Price']
 			, colWidths: [4, 30, 10]
 		});
 		// For loop will push the values into the new table created above.
 		for (let i = 0; i < results.length; i++) {
 			optionsArray.push(results[i].product_name);
-			AvailableTable.push(
-				[results[i].id, results[i].product_name, results[i].price]
+			// This is pushing the results into a generated table to display all available items nicely.
+			availableTable.push(
+				[results[i].id, results[i].product_name, parseFloat(results[i].price)]
 			);
 		};
-		console.log(AvailableTable.toString());
+		console.log(availableTable.toString());
 		purchasePrompt(results)
 	});
 };
@@ -68,14 +74,22 @@ function purchasePrompt(results) {
 		{
 			type: "input",
 			message: "How many do you want to get?",
-			name: "quantity"
+			name: "quantity",
+			validate: function (value) {
+				if (isNaN(value) === false && parseInt(value) > 0) {
+					return true;
+				} else {
+					console.log('\n\x1b[31mPlease use a valid quantity\x1b[0m');
+					return false;
+				}
+			}
 		}
 	]).then(function (order) {
 		// Loop through original query results to match the product name then pull price and available quantity.
 		for (let i = 0; i < results.length; i++) {
 			if (results[i].product_name === order.options) {
 				productID = results[i].id
-				price = results[i].price;
+				price = parseFloat(results[i].price);
 				availableQuantity = results[i].stock_quantity;
 			};
 		};
@@ -99,13 +113,41 @@ function purchasePrompt(results) {
 					if (error) {
 						return console.log(error);
 					}
-					console.log('Thank you for your purchase of ' + order.quantity + ' of ' + order.options + '!');
-					console.log('Your total is $' + order.quantity * price);
+					purchase = true;
+					pricesArray.push(price);
+					cartTable.push(
+						[order.options, order.quantity, price*order.quantity]
+					);
 				});
 		};
-		connection.end();
+		// After the customer tries to order something, it will run keepShopping which will check if they either want to get something else or stop.
+		keepShopping()
 	});
 };
 
-
+function keepShopping() {
+	inquirer.prompt([
+		{
+			type: "confirm",
+			message: "Would you like to purchase anything else?",
+			name: "shopMore"
+		}
+	]).then(function (answer) {
+		if (answer.shopMore) {
+			displayAvailableItems();
+		} else if (purchase) {
+			// Loops through pricesArray to get a total price of everything combined.
+			var totalPrice = 0;
+			for (let i = 0; i < pricesArray.length; i++) {
+				totalPrice += parseFloat(pricesArray[i]);
+			}
+			console.log('Thank you for your purchase! Here is your receipt.\n' + 'Your total is $' + parseFloat(totalPrice));
+			console.log(cartTable.toString());
+			connection.end();
+		} else {
+			console.log('We hope you come back!');
+			connection.end();
+		}
+	});
+};
 
