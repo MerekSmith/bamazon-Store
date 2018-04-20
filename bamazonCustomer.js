@@ -52,7 +52,7 @@ function displayAvailableItems() {
 			optionsArray.push(results[i].product_name);
 			// This is pushing the results into a generated table to display all available items nicely.
 			availableTable.push(
-				[results[i].id, results[i].product_name, parseFloat(results[i].price)]
+				[results[i].id, results[i].product_name, '$' + results[i].price]
 			);
 		};
 		console.log(availableTable.toString());
@@ -89,8 +89,8 @@ function purchasePrompt(results) {
 		for (let i = 0; i < results.length; i++) {
 			if (results[i].product_name === order.options) {
 				productID = results[i].id
-				price = parseFloat(results[i].price);
-				availableQuantity = results[i].stock_quantity;
+				price = results[i].price;
+				availableQuantity = results[i].stock_quantity.toFixed(2);
 			};
 		};
 		// Check if the quantity ordered is over what is available. If not available, tell the customer insufficent quantity. If enough, update server and provide customer with the order $ total.
@@ -141,7 +141,7 @@ function keepShopping() {
 			for (let i = 0; i < pricesArray.length; i++) {
 				totalPrice += parseFloat(pricesArray[i]);
 			}
-			console.log('Thank you for your purchase! Here is your receipt.\n' + 'Your total is $' + parseFloat(totalPrice));
+			console.log('\nThank you for your purchase! Here is your receipt.\n' + 'Your total is $' + totalPrice.toFixed(2));
 			console.log(cartTable.toString());
 			connection.end();
 		} else {
