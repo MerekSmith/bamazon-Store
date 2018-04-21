@@ -14,6 +14,7 @@ If the user selected yes to shopping more, the available items will be displayed
 If the user selects an item and places a quantity higher than the available stock, it will give back this error that there are not enough available and what quantity can be purchased.
 
 ![4-insufficient-qty](https://user-images.githubusercontent.com/29190130/39024723-f8d0a52c-43ff-11e8-8b4f-1b26d930a7f8.PNG)
+
 Once the user selects no on shopping more, they will be provided a total of all items purchased along with an itemized receipt with the total for each item.
 ![5-receipt](https://user-images.githubusercontent.com/29190130/39024724-f8e547b6-43ff-11e8-861c-5e70eade993e.PNG)
 
