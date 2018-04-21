@@ -134,6 +134,7 @@ function keepShopping() {
 		}
 	]).then(function (answer) {
 		if (answer.shopMore) {
+			console.log('Your item has been added to your cart.')
 			displayAvailableItems();
 		} else if (purchase) {
 			// Loops through pricesArray to get a total price of everything combined.
